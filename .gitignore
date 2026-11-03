@@ -1,0 +1,14 @@
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+# Private second-brain wiki: its own git repo, never part of this (soon public) repo.
+wiki/
+# Obsidian vault settings (vault root is this folder)
+.obsidian/
+.cache/
+# Local working notes and plan ledgers (evidence stays local; the repo has the results).
+.superpowers/
+# Cloud settings (laptop: the Autonomous AI Database DSN and ADMIN password; never committed).
+.env.cloud

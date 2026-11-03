@@ -1,0 +1,22 @@
+# Unit tests on every push and pull request. Integration tests need the Oracle container and
+# Ollama, so they run locally (make verify-dds, make verify-agent), not here.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    # Settings requires these; unit tests never connect, so placeholders do (there is no .env here).
+    env:
+      TDA_APP_PASSWORD: ci-placeholder
+      TDA_END_USER_PASSWORD: ci-placeholder
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.13.6"
+      - run: uv sync --frozen --python 3.10
+      - run: uv run pytest -q

@@ -1,0 +1,17 @@
+.cache
+.env
+.git
+.github
+.obsidian
+.pytest_cache
+.superpowers
+.venv
+**/__pycache__
+docs
+evals
+results
+scripts
+tests
+wiki
+deploy
+.env.cloud

@@ -1,0 +1,52 @@
+name: tda
+
+services:
+  oracle:
+    image: container-registry.oracle.com/database/free:latest
+    environment:
+      ORACLE_PWD: ${ORACLE_PWD}
+    ports:
+      - "1521:1521"
+    volumes:
+      - tda-oradata:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "/opt/oracle/checkDBStatus.sh"]
+      interval: 15s
+      timeout: 10s
+      retries: 60
+      start_period: 120s
+
+  # Trace viewer: UI and OTLP/HTTP on 6006, OTLP/gRPC on 4317. Traces persist in tda-phoenix.
+  phoenix:
+    image: arizephoenix/phoenix:latest
+    environment:
+      PHOENIX_WORKING_DIR: /mnt/data
+    ports:
+      - "6006:6006"
+      - "4317:4317"
+    volumes:
+      - tda-phoenix:/mnt/data
+
+  # The agent API (make image first). Profile "app": `make up` starts only Oracle and Phoenix.
+  # Ollama runs on the host (WSL, GPU), reached through host.docker.internal.
+  app:
+    profiles: ["app"]
+    image: tda-app:dev
+    build: .
+    env_file: .env
+    environment:
+      ORACLE_DSN: oracle:1521/FREEPDB1
+      OLLAMA_BASE: http://host.docker.internal:11434
+      PHOENIX_ENDPOINT: http://phoenix:6006/v1/traces
+      TDA_MEMORY: "1"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8000:8000"
+    depends_on:
+      oracle:
+        condition: service_healthy
+
+volumes:
+  tda-oradata:
+  tda-phoenix:

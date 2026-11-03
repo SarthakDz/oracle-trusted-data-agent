@@ -1,0 +1,28 @@
+# The public demo from this laptop: the agent API behind a Cloudflare quick tunnel (no account, no
+# open port), with Ollama on the host GPU and the local database. A new trycloudflare.com URL on each start.
+#
+#   make demo        (= docker compose -f docker-compose.yml -f deploy/compose.demo.yml up -d demo tunnel)
+#   make demo-stop
+#
+# A file of its own, not a profile: compose checks the :? secrets in every file it reads, so a profile
+# would make `make up` fail wherever TDA_DEMO_TOKEN is unset. Explicit env only (no env_file): no admin
+# password, no memory, no writes, and no published port, so the tunnel is the only way in.
+services:
+  demo:
+    image: tda-app:dev
+    environment:
+      ORACLE_DSN: oracle:1521/FREEPDB1
+      OLLAMA_BASE: http://host.docker.internal:11434
+      TDA_APP_PASSWORD: ${TDA_APP_PASSWORD:?set TDA_APP_PASSWORD in .env}
+      TDA_END_USER_PASSWORD: ${TDA_END_USER_PASSWORD:?set TDA_END_USER_PASSWORD in .env}
+      TDA_DEMO_TOKEN: ${TDA_DEMO_TOKEN:?set TDA_DEMO_TOKEN in .env}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      oracle:
+        condition: service_healthy
+
+  tunnel:
+    image: cloudflare/cloudflared:2026.9.3
+    command: tunnel --no-autoupdate --url http://demo:8000
+    depends_on: [demo]

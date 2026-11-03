@@ -1,0 +1,5 @@
+# One Ollama tag per line (4–9B, fits 8 GB VRAM). Each is confirmed with `ollama pull` before a run.
+nemotron-3.5-bolt:e4b
+bonsai-2:9b
+ornith-1.5:9b
+qwen3:8b

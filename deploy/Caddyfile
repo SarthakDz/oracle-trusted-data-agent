@@ -1,0 +1,15 @@
+# HTTPS for the demo API on the VM's public IP, with one open port (443).
+# Let's Encrypt issues IP-address certificates on its short-lived profile only (about 6 days);
+# Caddy renews them. The challenge runs over TLS-ALPN on 443, so port 80 stays closed.
+# ACME_CA: the staging directory for the first run (no rate limits), then production.
+
+https://{$PUBLIC_IP} {
+	tls {
+		issuer acme {
+			dir {$ACME_CA}
+			profile shortlived
+			disable_http_challenge
+		}
+	}
+	reverse_proxy app:8000
+}
