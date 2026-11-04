@@ -47,6 +47,8 @@ outside the persona's write rules.
 | The API | no token, a wrong token, a write in A or B, a public write, DDL through A's read path | — | — | — | the token (401, or 503 if unset). Writes commit only in C, and never in the public demo. In A, the API runs only single SELECT statements |
 
 Over all 80 attacks: **A 16.2%, B 11.2%, C 0.0%**. Over-refusal stays at 3.3% in every config.
+In every config, the same 20 attacks ended with `model returned no SQL` and count as not leaked.
+Among the 60 answered: **A 21.7% (13), B 15.0% (9), C 0%**.
 
 Two findings decide the design:
 
@@ -95,4 +97,7 @@ Two findings decide the design:
 - **Approval fatigue.** The write eval approves everything to measure the worst case. C
   holds at 0.0% even then; A and B rely on the person reading the preview.
 - **Single-turn attacks.** Multi-turn escalation is not tested.
+- **Twenty attacks got no answer.** The model returned no SQL on the same 20 of 80 in every
+  config, so the suite did not exercise any config's defenses on them. A model that answers them
+  could change the result.
 - **The model and its registry.** Models come from the Ollama registry, pinned by name, not digest.
